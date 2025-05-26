@@ -54,7 +54,7 @@ An interactive, feature-rich event calendar built with React. This calendar allo
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/event-calendar.git
+git clone https://github.com/lavanyanagasri/event-calendar.git
 
 # Navigate to the project directory
 cd event-calendar
