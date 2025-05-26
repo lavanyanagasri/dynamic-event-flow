@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Event, EventFormData, RecurrencePattern } from '@/types/calendar';
 
@@ -28,13 +27,52 @@ export const useEvents = () => {
     setEvents(newEvents);
   };
 
+  const parseCustomPattern = (pattern: string): { type: 'daily' | 'weekly' | 'monthly'; interval: number } | null => {
+    if (!pattern) return null;
+    
+    const normalizedPattern = pattern.toLowerCase().trim();
+    
+    // Parse patterns like "every 2 weeks", "every 3 days", "every 6 months"
+    const weeklyMatch = normalizedPattern.match(/every\s+(\d+)\s+weeks?/);
+    if (weeklyMatch) {
+      return { type: 'weekly', interval: parseInt(weeklyMatch[1]) };
+    }
+    
+    const dailyMatch = normalizedPattern.match(/every\s+(\d+)\s+days?/);
+    if (dailyMatch) {
+      return { type: 'daily', interval: parseInt(dailyMatch[1]) };
+    }
+    
+    const monthlyMatch = normalizedPattern.match(/every\s+(\d+)\s+months?/);
+    if (monthlyMatch) {
+      return { type: 'monthly', interval: parseInt(monthlyMatch[1]) };
+    }
+    
+    // Default fallback
+    return null;
+  };
+
   const generateRecurringEvents = (baseEvent: Event): Event[] => {
     if (!baseEvent.isRecurring || !baseEvent.recurrence) {
       return [baseEvent];
     }
 
     const recurringEvents: Event[] = [baseEvent];
-    const { type, interval, daysOfWeek, endDate } = baseEvent.recurrence;
+    let { type, interval, daysOfWeek, endDate, customPattern } = baseEvent.recurrence;
+    
+    // Handle custom patterns
+    if (type === 'custom' && customPattern) {
+      const parsedPattern = parseCustomPattern(customPattern);
+      if (parsedPattern) {
+        type = parsedPattern.type;
+        interval = parsedPattern.interval;
+      } else {
+        // If pattern can't be parsed, treat as daily with interval 1
+        type = 'daily';
+        interval = 1;
+      }
+    }
+    
     const maxDate = endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
     
     let currentDate = new Date(baseEvent.startTime);

@@ -151,6 +151,21 @@ export const EventForm = ({
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+  const getCustomPatternPlaceholder = () => {
+    switch (recurrence.type) {
+      case 'daily':
+        return `Every ${recurrence.interval} day(s)`;
+      case 'weekly':
+        return `Every ${recurrence.interval} week(s)`;
+      case 'monthly':
+        return `Every ${recurrence.interval} month(s)`;
+      case 'custom':
+        return 'e.g., "every 2 weeks", "every 3 days"';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white/95 backdrop-blur-md border border-white/20 max-w-lg max-h-[90vh] overflow-y-auto">
@@ -305,6 +320,22 @@ export const EventForm = ({
                     />
                   </div>
                 </div>
+
+                {recurrence.type === 'custom' && (
+                  <div className="space-y-2">
+                    <Label className="text-gray-700 font-medium">Custom Pattern</Label>
+                    <Input
+                      type="text"
+                      placeholder={getCustomPatternPlaceholder()}
+                      value={recurrence.customPattern || ''}
+                      onChange={(e) => handleRecurrenceChange('customPattern', e.target.value)}
+                      className="bg-white"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Examples: "every 2 weeks", "every 3 days", "every 6 months"
+                    </p>
+                  </div>
+                )}
 
                 {recurrence.type === 'weekly' && (
                   <div className="space-y-2">
